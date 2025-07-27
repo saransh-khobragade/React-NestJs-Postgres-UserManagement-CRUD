@@ -112,4 +112,4 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       details: String(error),
     });
   }
-}; 
+};

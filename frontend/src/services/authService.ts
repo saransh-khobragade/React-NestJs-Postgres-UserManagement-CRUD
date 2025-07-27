@@ -29,7 +29,7 @@ export const authService = {
     try {
       const response = await api.post<ApiResponse<ApiUser>>('/api/auth/login', credentials);
       return convertApiUser(response.data);
-    } catch (error) {
+    } catch {
       throw new Error('Login failed');
     }
   },
@@ -42,7 +42,7 @@ export const authService = {
         password: credentials.password,
       });
       return convertApiUser(response.data);
-    } catch (error) {
+    } catch {
       throw new Error('Signup failed');
     }
   },

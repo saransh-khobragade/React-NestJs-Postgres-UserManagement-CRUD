@@ -29,8 +29,7 @@ const getUsers = async (): Promise<User[]> => {
   try {
     const response = await api.get<ApiResponse<ApiUser[]>>('/api/users');
     return response.data.map(convertApiUser);
-  } catch (error) {
-    console.error('Failed to fetch users:', error);
+  } catch {
     throw new Error('Failed to fetch users');
   }
 };
@@ -39,8 +38,7 @@ const createUser = async (userData: CreateUserData): Promise<User> => {
   try {
     const response = await api.post<ApiResponse<ApiUser>>('/api/users', userData);
     return convertApiUser(response.data);
-  } catch (error) {
-    console.error('Failed to create user:', error);
+  } catch {
     throw new Error('Failed to create user');
   }
 };
@@ -52,8 +50,7 @@ const updateUser = async (
   try {
     const response = await api.put<ApiResponse<ApiUser>>(`/api/users/${id}`, userData);
     return convertApiUser(response.data);
-  } catch (error) {
-    console.error('Failed to update user:', error);
+  } catch {
     throw new Error('Failed to update user');
   }
 };
@@ -61,8 +58,7 @@ const updateUser = async (
 const deleteUser = async (id: string): Promise<void> => {
   try {
     await api.delete<ApiResponse<ApiUser>>(`/api/users/${id}`);
-  } catch (error) {
-    console.error('Failed to delete user:', error);
+  } catch {
     throw new Error('Failed to delete user');
   }
 };
