@@ -66,6 +66,14 @@ export const api = {
     });
   },
 
+   // PATCH request
+  patch: async <T>(endpoint: string, data: unknown): Promise<T> => {
+    return await api.request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
   // DELETE request
   delete: async <T>(endpoint: string): Promise<T> => {
     return await api.request<T>(endpoint, { method: 'DELETE' });

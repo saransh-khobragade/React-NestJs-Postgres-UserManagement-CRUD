@@ -17,7 +17,7 @@ import type { User } from '@/types/user';
 const userSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().optional(),
   age: z.number().min(0).max(150).optional(),
   isActive: z.boolean().optional(),
 });
@@ -44,14 +44,21 @@ export const UserForm: React.FC<UserFormProps> = ({
     defaultValues: {
       name: user?.name ?? '',
       email: user?.email ?? '',
-      password: user?.password ?? '',
+      password: user ? undefined : '',
       age: user?.age,
       isActive: user?.isActive ?? true,
     },
   });
 
   const handleFormSubmit = async (data: UserFormData): Promise<void> => {
-    await onSubmit(data);
+    // Remove password field for updates
+    if (user) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...updateData } = data;
+      await onSubmit(updateData as UserFormData);
+    } else {
+      await onSubmit(data);
+    }
   };
 
   const getSubmitButtonText = (): string => {
@@ -101,18 +108,20 @@ export const UserForm: React.FC<UserFormProps> = ({
               )}
             </div>
 
-            <div className='space-y-2'>
-              <Label htmlFor='password'>Password</Label>
-              <Input
-                id='password'
-                type='password'
-                placeholder='Enter password'
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className='text-sm text-red-500'>{errors.password.message}</p>
-              )}
-            </div>
+            {!user && (
+              <div className='space-y-2'>
+                <Label htmlFor='password'>Password</Label>
+                <Input
+                  id='password'
+                  type='password'
+                  placeholder='Enter password'
+                  {...register('password')}
+                />
+                {errors.password && (
+                  <p className='text-sm text-red-500'>{errors.password.message}</p>
+                )}
+              </div>
+            )}
 
             <div className='space-y-2'>
               <Label htmlFor='age'>Age</Label>

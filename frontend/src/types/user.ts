@@ -1,8 +1,10 @@
 export interface User {
   id: string;
   name: string;
+  password?: string;
   email: string;
   age?: number;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -10,11 +12,14 @@ export interface User {
 export interface CreateUserData {
   name: string;
   email: string;
-  age?: number;
+  password?: string | undefined;
+  age?: number | undefined;
+  isActive?: boolean | undefined;
 }
 
 export interface UpdateUserData {
   name?: string;
   email?: string;
-  age?: number;
+  age?: number | undefined;
+  isActive?: boolean | undefined;
 }

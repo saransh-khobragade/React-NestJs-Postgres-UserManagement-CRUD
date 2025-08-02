@@ -41,15 +41,7 @@ export class UpdateUserDto {
   @Max(150)
   age?: number;
 
-  @ApiProperty({
-    description: 'The password of the user',
-    example: 'password123',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters' })
-  password?: string;
+
 
   @ApiProperty({
     description: 'Whether the user is active',

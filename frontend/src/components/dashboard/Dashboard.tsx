@@ -53,6 +53,9 @@ export const Dashboard: React.FC = () => {
   const handleCreateUser = async (userData: {
     name: string;
     email: string;
+    password?: string | undefined;
+    age?: number | undefined;
+    isActive?: boolean | undefined;
   }): Promise<void> => {
     try {
       await userService.createUser(userData);
@@ -67,6 +70,8 @@ export const Dashboard: React.FC = () => {
   const handleUpdateUser = async (userData: {
     name: string;
     email: string;
+    age?: number | undefined;
+    isActive?: boolean | undefined;
   }): Promise<void> => {
     if (!editingUser) return;
 
@@ -207,6 +212,7 @@ export const Dashboard: React.FC = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Age</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Updated</TableHead>
                     <TableHead className='text-right'>Actions</TableHead>
@@ -218,6 +224,15 @@ export const Dashboard: React.FC = () => {
                       <TableCell className='font-medium'>{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.age ?? '-'}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          user.isActive === true
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {user.isActive === true ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>{formatDate(user.updatedAt)}</TableCell>
                       <TableCell className='text-right'>

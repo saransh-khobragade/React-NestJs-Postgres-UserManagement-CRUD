@@ -6,6 +6,7 @@ interface ApiUser {
   name: string;
   email: string;
   age?: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,6 +23,7 @@ const convertApiUser = (apiUser: ApiUser): User => ({
   id: String(apiUser.id),
   name: apiUser.name,
   email: apiUser.email,
+  isActive: apiUser.isActive,
   ...(apiUser.age !== undefined && { age: apiUser.age }),
   createdAt: apiUser.createdAt,
   updatedAt: apiUser.updatedAt,
@@ -74,7 +76,7 @@ const updateUser = async (
   userData: UpdateUserData,
 ): Promise<User> => {
   try {
-    const response = await api.put<ApiResponse<ApiUser>>(`/api/users/${id}`, userData);
+    const response = await api.patch<ApiResponse<ApiUser>>(`/api/users/${id}`, userData);
     
     if (!response.success) {
       throw new Error(response.message ?? 'Failed to update user');

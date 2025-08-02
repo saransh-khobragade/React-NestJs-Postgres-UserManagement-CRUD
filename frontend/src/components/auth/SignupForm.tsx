@@ -107,7 +107,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='age'>Age (Optional)</Label>
+            <Label htmlFor='age'>Age</Label>
             <Input
               // value={20}
               id='age'
