@@ -5,6 +5,7 @@ interface ApiUser {
   id: number;
   name: string;
   email: string;
+  age?: number;
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +21,7 @@ const convertApiUser = (apiUser: ApiUser): User => ({
   id: String(apiUser.id),
   name: apiUser.name,
   email: apiUser.email,
+  ...(apiUser.age !== undefined && { age: apiUser.age }),
   createdAt: apiUser.created_at,
   updatedAt: apiUser.updated_at,
 });
@@ -28,9 +30,17 @@ export const authService = {
   login: async (credentials: LoginCredentials): Promise<User> => {
     try {
       const response = await api.post<ApiResponse<ApiUser>>('/api/auth/login', credentials);
+      
+      if (!response.success) {
+        throw new Error(response.message ?? 'Invalid email or password');
+      }
+      
       return convertApiUser(response.data);
-    } catch {
-      throw new Error('Login failed');
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Login failed. Please check your credentials and try again.');
     }
   },
 
@@ -40,10 +50,19 @@ export const authService = {
         name: credentials.name,
         email: credentials.email,
         password: credentials.password,
+        age: credentials.age,
       });
+      
+      if (!response.success) {
+        throw new Error(response.message ?? 'Failed to create account');
+      }
+      
       return convertApiUser(response.data);
-    } catch {
-      throw new Error('Signup failed');
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Signup failed. Please try again.');
     }
   },
 }; 

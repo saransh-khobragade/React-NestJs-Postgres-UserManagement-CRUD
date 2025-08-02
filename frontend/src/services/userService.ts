@@ -5,6 +5,7 @@ interface ApiUser {
   id: number;
   name: string;
   email: string;
+  age?: number;
   created_at: string;
   updated_at: string;
 }
@@ -21,6 +22,7 @@ const convertApiUser = (apiUser: ApiUser): User => ({
   id: String(apiUser.id),
   name: apiUser.name,
   email: apiUser.email,
+  ...(apiUser.age !== undefined && { age: apiUser.age }),
   createdAt: apiUser.created_at,
   updatedAt: apiUser.updated_at,
 });

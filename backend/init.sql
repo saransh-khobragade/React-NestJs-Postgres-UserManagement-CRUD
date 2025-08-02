@@ -1,33 +1,18 @@
--- Initialize the database with users table
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- PostgreSQL initialization script
+-- This script runs automatically when the container starts for the first time
 
--- Create index on email for faster lookups
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- Create the test_db database if it doesn't exist
+SELECT 'CREATE DATABASE test_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'test_db')\gexec
 
--- Create a function to update the updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
+-- Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE test_db TO postgres;
 
--- Create trigger to automatically update updated_at
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
+-- Connect to test_db and create extensions if needed
+\c test_db;
 
--- Insert some sample data
-INSERT INTO users (name, email) VALUES 
-    ('John Doe', 'john.doe@example.com'),
-    ('Jane Smith', 'jane.smith@example.com'),
-    ('Bob Johnson', 'bob.johnson@example.com')
-ON CONFLICT (email) DO NOTHING; 
+-- Create any additional extensions or setup here
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Log the initialization
+SELECT 'Database test_db initialized successfully' as status; 

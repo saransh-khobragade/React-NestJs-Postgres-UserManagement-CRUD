@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ const signupSchema = z
     email: z.email('Please enter a valid email address'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
     confirmPassword: z.string(),
+    age: z.number().min(0).max(150).optional(),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -39,19 +41,23 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
 
   const onSubmit = async (data: SignupFormData): Promise<void> => {
     try {
-      await signup(data as SignupCredentials);
-    } catch {
-      setError('root', {
-        type: 'manual',
-        message: 'Failed to create account. Please try again.',
-      });
+      const signupData = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        age: data.age,
+      };
+      await signup(signupData as SignupCredentials);
+      toast.success('Account created successfully!');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create account';
+      toast.error(errorMessage);
     }
   };
 
@@ -75,6 +81,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='name'>Full Name</Label>
             <Input
+              value={'Temp Name'}
               id='name'
               type='text'
               placeholder='Enter your full name'
@@ -88,6 +95,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
             <Input
+              value={'test@test.com'}
               id='email'
               type='email'
               placeholder='Enter your email'
@@ -99,8 +107,23 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           </div>
 
           <div className='space-y-2'>
+            <Label htmlFor='age'>Age (Optional)</Label>
+            <Input
+              value={20}
+              id='age'
+              type='number'
+              placeholder='Enter your age'
+              {...register('age', { valueAsNumber: true })}
+            />
+            {errors.age && (
+              <p className='text-sm text-red-500'>{errors.age.message}</p>
+            )}
+          </div>
+
+          <div className='space-y-2'>
             <Label htmlFor='password'>Password</Label>
             <Input
+              value={'temp123'}
               id='password'
               type='password'
               placeholder='Enter your password'
@@ -114,6 +137,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='confirmPassword'>Confirm Password</Label>
             <Input
+              value={'temp123'} 
               id='confirmPassword'
               type='password'
               placeholder='Confirm your password'
@@ -125,12 +149,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               </p>
             )}
           </div>
-
-          {errors.root && (
-            <p className='text-sm text-red-500 text-center'>
-              {errors.root.message}
-            </p>
-          )}
 
           <Button type='submit' className='w-full' disabled={isLoading}>
             {isLoading ? 'Creating account...' : 'Create account'}

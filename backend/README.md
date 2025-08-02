@@ -1,407 +1,296 @@
-# Node.js TypeScript API with PostgreSQL and Redis
+# NestJS CRUD API with PostgreSQL
 
-A modern Node.js TypeScript API with PostgreSQL database and Redis caching, containerized with Docker Compose.
+A complete CRUD API application built with NestJS, PostgreSQL, and Docker Compose.
 
 ## 🚀 Features
 
-- **TypeScript** - Full TypeScript support with strict type checking
-- **Express.js** - Fast, unopinionated web framework
-- **PostgreSQL** - Robust relational database
-- **Redis** - High-performance caching layer
-- **Docker Compose** - Easy development and deployment
-- **CRUD Operations** - Complete user management API
-- **Caching** - Intelligent Redis caching for improved performance
-- **Health Checks** - Built-in health monitoring
-- **ESLint & Prettier** - Code quality and formatting
-- **Console Logging** - Simple and efficient logging system
+- **Full CRUD Operations**: Complete Create, Read, Update, Delete functionality
+- **PostgreSQL Database**: Robust relational database with TypeORM
+- **Docker Compose**: Easy development and deployment setup
+- **Swagger Documentation**: Interactive API documentation
+- **Input Validation**: Request validation using class-validator
+- **TypeScript**: Full type safety throughout the application
+- **User Management**: Complete CRUD operations for users
+- **pgAdmin**: Web-based database management interface
+- **Automatic Database Setup**: PostgreSQL initialization handled automatically
 
 ## 📋 Prerequisites
 
-- Docker and Docker Compose
-- Node.js 18+ (for local development)
+- Node.js (v18 or higher)
 - Yarn package manager
+- Docker and Docker Compose
 
-## 🛠️ Quick Start
+## ⚡ Quick Start
 
-### Using Docker Compose (Recommended)
+### Start Everything (Recommended)
 
-1. **Clone the repository**
+```bash
+# Start all services (PostgreSQL, NestJS App, pgAdmin)
+./scripts/start.sh
+```
 
-   ```bash
-   git clone <repository-url>
-   cd Node-typescript-postgres-redis-2025
-   ```
+This will start:
+- **NestJS API** at http://localhost:3000
+- **Swagger Docs** at http://localhost:3000/api
+- **pgAdmin** at http://localhost:5050
+- **PostgreSQL** on port 5432
 
-2. **Start all services**
+### Manual Start
 
-   ```bash
-   yarn docker:up
-   # or
-   docker-compose up -d
-   ```
+```bash
+# Start with Docker Compose
+docker-compose up -d
 
-3. **Access the API**
-   - API: http://localhost:3000
-   - Health Check: http://localhost:3000/health
-   - PostgreSQL: localhost:5432
-   - Redis: localhost:6379
+# Start the application
+yarn start:dev
+```
 
-### Local Development
+## 🗄️ Database Management
 
-1. **Install dependencies**
+### pgAdmin Web Interface
+- **URL**: http://localhost:5050
+- **Email**: admin@admin.com
+- **Password**: admin
 
-   ```bash
-   yarn install
-   ```
+### Database Connection Details
+- **Host**: postgres (or localhost)
+- **Port**: 5432
+- **Database**: test_db
+- **Username**: postgres
+- **Password**: password
 
-2. **Start PostgreSQL and Redis with Docker**
+### Quick Database Commands
+```bash
+# View all tables
+docker exec -it postgres psql -U postgres -d test_db -c "\dt"
 
-   ```bash
-   docker-compose up postgres redis -d
-   ```
+# View users
+docker exec -it postgres psql -U postgres -d test_db -c "SELECT * FROM users;"
 
-3. **Run the development server**
-   ```bash
-   yarn dev
-   ```
+
+
+# Check database status
+docker exec -it postgres psql -U postgres -c "\l"
+```
+
+### Database Initialization
+The `test_db` database is automatically created when the PostgreSQL container starts for the first time using:
+- **Environment variable**: `POSTGRES_DB: test_db`
+- **Init script**: `init.sql` (runs automatically on first startup)
+
+No manual database initialization is needed!
+
+## 🔌 API Endpoints
+
+### Users
+- `POST /users` - Create a new user
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `PATCH /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+
+
+### Health & Documentation
+- `GET /` - Root endpoint
+- `GET /health` - Health check
+- `GET /api` - Swagger documentation
+
+## 🧪 Testing
+
+### Test All APIs
+```bash
+./scripts/test-api.sh
+```
+
+### Manual Testing Examples
+```bash
+# Create a user
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "age": 30,
+    "isActive": true
+  }'
+
+
+```
+
+## 🛠️ Development
+
+### Available Scripts
+```bash
+yarn start:dev    # Start in development mode
+yarn build        # Build the application
+yarn start:prod   # Start in production mode
+yarn test         # Run tests
+yarn test:watch   # Run tests in watch mode
+yarn test:cov     # Run tests with coverage
+yarn test:e2e     # Run end-to-end tests
+yarn lint         # Run ESLint
+yarn format       # Format code with Prettier
+```
+
+### Environment Variables
+Copy `env.example` to `.env` and configure:
+
+```env
+# Database Configuration
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=test_db
+DATABASE_USER=postgres
+DATABASE_PASSWORD=password
+
+# Application Configuration
+NODE_ENV=development
+PORT=8080
+
+# JWT Configuration (for future use)
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=1d
+```
 
 ## 🐳 Docker Commands
 
 ```bash
-# Build and start all services
-yarn docker:up
-
-# Start services in background
+# Start all services
 docker-compose up -d
 
 # View logs
-yarn docker:logs
+docker-compose logs -f
 
 # Stop all services
-yarn docker:down
+docker-compose down
 
-# Restart services
-yarn docker:restart
+# Rebuild and start
+docker-compose up -d --build
 
-# Rebuild containers
-yarn docker:build
+# Remove volumes (will delete database data)
+docker-compose down -v
+
+# Clean up everything
+./scripts/cleanup.sh
 ```
 
-## 📚 API Endpoints
+## 🔧 Scripts
 
-### Health Check
+### Start Script with Rebuild Options
+```bash
+# Normal start
+./scripts/start.sh
 
-```http
-GET /health
+# Rebuild specific containers
+./scripts/start.sh --rebuild-backend   # Rebuild NestJS app only
+./scripts/start.sh --rebuild-postgres  # Rebuild PostgreSQL only
+./scripts/start.sh --rebuild-pgadmin   # Rebuild pgAdmin only
+
+# Rebuild everything
+./scripts/start.sh --rebuild
+
+# Show help
+./scripts/start.sh --help
 ```
 
-### Users API
+### Other Scripts
+- `./scripts/test-api.sh` - Test all API endpoints
+- `./scripts/cleanup.sh` - Clean up all Docker resources
 
-#### Get All Users
-
-```http
-GET /api/users
-```
-
-#### Get User by ID
-
-```http
-GET /api/users/:id
-```
-
-#### Create User
-
-```http
-POST /api/users
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com"
-}
-```
-
-#### Update User
-
-```http
-PUT /api/users/:id
-Content-Type: application/json
-
-{
-  "name": "John Updated",
-  "email": "john.updated@example.com"
-}
-```
-
-#### Delete User
-
-```http
-DELETE /api/users/:id
-```
-
-## 🗄️ Database Schema
+## 📊 Database Schema
 
 ### Users Table
+- `id` (Primary Key)
+- `firstName` (VARCHAR)
+- `lastName` (VARCHAR)
+- `email` (VARCHAR, Unique)
+- `age` (INT, Optional)
+- `isActive` (BOOLEAN)
+- `createdAt` (TIMESTAMP)
+- `updatedAt` (TIMESTAMP)
 
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-```
 
-## 🔧 Configuration
 
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Server
-PORT=3000
-NODE_ENV=development
-
-# Database
-DATABASE_URL=postgresql://postgres:postgres123@localhost:5432/node_api_db
-
-# Redis
-REDIS_URL=redis://localhost:6379
-```
-
-### Docker Environment
-
-The Docker Compose setup automatically configures:
-
-- PostgreSQL database with sample data
-- Redis cache server
-- Network connectivity between services
-- Health checks for all services
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
-├── src/
-│   ├── services/
-│   │   ├── database.ts    # PostgreSQL operations
-│   │   ├── cache.ts       # Redis operations
-│   │   └── logger.ts      # Console-based logging
-│   ├── routes/
-│   │   ├── index.ts       # Main routes
-│   │   └── userRoutes.ts  # User API routes
-│   ├── types/
-│   │   └── index.ts       # TypeScript type definitions
-│   └── server.ts          # Main server file
-├── docker-compose.yml     # Docker services configuration
-├── Dockerfile            # Node.js application container
-├── init.sql             # Database initialization script
-├── eslint.config.js     # ESLint configuration
-├── tsconfig.json        # TypeScript configuration
-└── package.json         # Dependencies and scripts
+src/
+├── main.ts                 # Application entry point
+├── app.module.ts          # Root module
+├── app.controller.ts      # Main controller
+├── users/                 # Users module
+│   ├── user.entity.ts     # User database entity
+│   ├── users.controller.ts # Users API endpoints
+│   ├── users.service.ts   # Users business logic
+│   ├── users.module.ts    # Users module definition
+│   └── dto/               # Data Transfer Objects
+│       ├── create-user.dto.ts
+│       └── update-user.dto.ts
+
 ```
 
-## 📝 Logging
+## 📚 Dependencies
 
-The application uses a simple console-based logging system with the following levels:
+### Core Dependencies
+- **@nestjs/common**: NestJS core functionality
+- **@nestjs/typeorm**: TypeORM integration for NestJS
+- **@nestjs/swagger**: API documentation
+- **typeorm**: ORM for database operations
+- **pg**: PostgreSQL driver
+- **class-validator**: Input validation
+- **class-transformer**: Object transformation
 
-- `logger.error()` - For error messages
-- `logger.warn()` - For warning messages
-- `logger.info()` - For informational messages
-- `logger.http()` - For HTTP request logging
-- `logger.debug()` - For debug messages
+### Development Dependencies
+- **@nestjs/cli**: NestJS command line tools
+- **@nestjs/testing**: Testing utilities
+- **eslint**: Code linting
+- **prettier**: Code formatting
+- **jest**: Testing framework
+- **typescript**: TypeScript compiler
 
-Each log entry includes a timestamp and appropriate console method (error, warn, info, etc.).
+## 🔍 Troubleshooting
 
-## 🧪 Testing the API
+### Common Issues
 
-### Using curl
+**Backend not connecting to database:**
+- Ensure PostgreSQL container is running: `docker-compose ps`
+- Check database exists: `docker exec postgres psql -U postgres -c "\l"`
+- Restart backend: `docker-compose restart backend`
 
-1. **Get all users**
+**pgAdmin not showing servers:**
+- Check servers.json configuration
+- Restart pgAdmin: `docker-compose restart pgadmin`
+- Verify PostgreSQL is accessible from pgAdmin container
 
-   ```bash
-   curl http://localhost:3000/api/users
-   ```
+**Port conflicts:**
+- Check if ports 8080, 5432, or 5050 are in use
+- Stop conflicting services or change ports in docker-compose.yml
 
-2. **Create a user**
-
-   ```bash
-   curl -X POST http://localhost:3000/api/users \
-     -H "Content-Type: application/json" \
-     -d '{"name": "Jane Doe", "email": "jane.doe@example.com"}'
-   ```
-
-3. **Get user by ID**
-
-   ```bash
-   curl http://localhost:3000/api/users/1
-   ```
-
-4. **Update user**
-
-   ```bash
-   curl -X PUT http://localhost:3000/api/users/1 \
-     -H "Content-Type: application/json" \
-     -d '{"name": "Jane Updated", "email": "jane.updated@example.com"}'
-   ```
-
-5. **Delete user**
-   ```bash
-   curl -X DELETE http://localhost:3000/api/users/1
-   ```
-
-### Using Postman
-
-Import the following collection:
-
-```json
-{
-  "info": {
-    "name": "Node.js API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:3000/health"
-      }
-    },
-    {
-      "name": "Get All Users",
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:3000/api/users"
-      }
-    },
-    {
-      "name": "Create User",
-      "request": {
-        "method": "POST",
-        "url": "http://localhost:3000/api/users",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\"\n}"
-        }
-      }
-    }
-  ]
-}
-```
-
-## 🔍 Monitoring
-
-### Health Check Response
-
-```json
-{
-  "success": true,
-  "message": "Server is healthy",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "services": {
-    "database": true,
-    "redis": true
-  }
-}
-```
-
-### Logs
-
+### Useful Commands
 ```bash
-# View application logs
-docker-compose logs api
+# Check container status
+docker-compose ps
 
-# View database logs
-docker-compose logs postgres
+# View logs
+docker-compose logs -f [service_name]
 
-# View Redis logs
-docker-compose logs redis
+# Access PostgreSQL
+docker exec -it postgres psql -U postgres -d test_db
+
+# Rebuild specific service
+./scripts/start.sh --rebuild-backend
 ```
-
-## 🚀 Production Deployment
-
-For production deployment:
-
-1. **Update environment variables**
-
-   ```env
-   NODE_ENV=production
-   DATABASE_URL=your_production_db_url
-   REDIS_URL=your_production_redis_url
-   ```
-
-2. **Use production Docker Compose**
-
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
-
-3. **Set up reverse proxy (nginx)**
-4. **Configure SSL certificates**
-5. **Set up monitoring and logging**
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests and linting
+4. Add tests if applicable
 5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **Port already in use**
-
-   ```bash
-   # Check what's using the port
-   lsof -i :3000
-
-   # Kill the process or change the port in docker-compose.yml
-   ```
-
-2. **Database connection failed**
-
-   ```bash
-   # Check if PostgreSQL is running
-   docker-compose ps postgres
-
-   # View database logs
-   docker-compose logs postgres
-   ```
-
-3. **Redis connection failed**
-
-   ```bash
-   # Check if Redis is running
-   docker-compose ps redis
-
-   # View Redis logs
-   docker-compose logs redis
-   ```
-
-### Reset Everything
-
-```bash
-# Stop and remove all containers, networks, and volumes
-docker-compose down -v
-
-# Remove all images
-docker-compose down --rmi all
-
-# Start fresh
-docker-compose up --build
-```
+This project is licensed under the MIT License. 

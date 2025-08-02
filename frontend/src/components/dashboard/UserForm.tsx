@@ -17,6 +17,7 @@ import type { User } from '@/types/user';
 const userSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.email('Please enter a valid email address'),
+  age: z.number().min(0).max(150).optional(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -41,6 +42,7 @@ export const UserForm: React.FC<UserFormProps> = ({
     defaultValues: {
       name: user?.name ?? '',
       email: user?.email ?? '',
+      age: user?.age,
     },
   });
 
@@ -92,6 +94,19 @@ export const UserForm: React.FC<UserFormProps> = ({
               />
               {errors.email && (
                 <p className='text-sm text-red-500'>{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='age'>Age (Optional)</Label>
+              <Input
+                id='age'
+                type='number'
+                placeholder='Enter age'
+                {...register('age', { valueAsNumber: true })}
+              />
+              {errors.age && (
+                <p className='text-sm text-red-500'>{errors.age.message}</p>
               )}
             </div>
 

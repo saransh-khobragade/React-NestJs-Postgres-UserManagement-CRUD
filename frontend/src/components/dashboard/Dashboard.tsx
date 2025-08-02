@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -42,7 +43,7 @@ export const Dashboard: React.FC = () => {
       const userList = await userService.getUsers();
       setUsers(userList);
     } catch {
-      // Handle error silently or show toast notification
+      toast.error('Failed to load users');
     } finally {
       setIsLoading(false);
     }
@@ -56,8 +57,9 @@ export const Dashboard: React.FC = () => {
       await userService.createUser(userData);
       await loadUsers();
       setShowUserForm(false);
+      toast.success('User created successfully');
     } catch {
-      // Handle error silently or show toast notification
+      toast.error('Failed to create user');
     }
   };
 
@@ -72,8 +74,9 @@ export const Dashboard: React.FC = () => {
       await loadUsers();
       setEditingUser(null);
       setShowUserForm(false);
+      toast.success('User updated successfully');
     } catch {
-      // Handle error silently or show toast notification
+      toast.error('Failed to update user');
     }
   };
 
@@ -82,8 +85,9 @@ export const Dashboard: React.FC = () => {
       await userService.deleteUser(userId);
       await loadUsers();
       setShowDeleteConfirm(null);
+      toast.success('User deleted successfully');
     } catch {
-      // Handle error silently or show toast notification
+      toast.error('Failed to delete user');
     }
   };
 
@@ -116,7 +120,10 @@ export const Dashboard: React.FC = () => {
             <span className='text-sm text-muted-foreground'>
               Welcome, {user?.name}
             </span>
-            <Button variant='outline' onClick={logout}>
+            <Button variant='outline' onClick={() => {
+              logout();
+              toast.success('Logged out successfully');
+            }}>
               Logout
             </Button>
           </div>
@@ -197,6 +204,7 @@ export const Dashboard: React.FC = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Age</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Updated</TableHead>
                     <TableHead className='text-right'>Actions</TableHead>
@@ -207,6 +215,7 @@ export const Dashboard: React.FC = () => {
                     <TableRow key={user.id}>
                       <TableCell className='font-medium'>{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.age ?? '-'}</TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>{formatDate(user.updatedAt)}</TableCell>
                       <TableCell className='text-right'>

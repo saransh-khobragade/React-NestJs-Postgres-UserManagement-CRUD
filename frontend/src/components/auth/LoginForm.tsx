@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +33,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -40,11 +40,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
   const onSubmit = async (data: LoginFormData): Promise<void> => {
     try {
       await login(data as LoginCredentials);
-    } catch {
-      setError('root', {
-        type: 'manual',
-        message: 'Invalid email or password',
-      });
+      toast.success('Login successful!');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      toast.error(errorMessage);
     }
   };
 
@@ -68,6 +67,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
             <Input
+              value={'test@test.com'}
               id='email'
               type='email'
               placeholder='Enter your email'
@@ -81,6 +81,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           <div className='space-y-2'>
             <Label htmlFor='password'>Password</Label>
             <Input
+              value={'temp123'}
               id='password'
               type='password'
               placeholder='Enter your password'
@@ -90,12 +91,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
               <p className='text-sm text-red-500'>{errors.password.message}</p>
             )}
           </div>
-
-          {errors.root && (
-            <p className='text-sm text-red-500 text-center'>
-              {errors.root.message}
-            </p>
-          )}
 
           <Button type='submit' className='w-full' disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign in'}

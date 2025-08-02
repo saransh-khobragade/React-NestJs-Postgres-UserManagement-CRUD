@@ -55,8 +55,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await authService.login(credentials);
       setUser(user);
       localStorage.setItem('user', JSON.stringify(user));
-    } catch {
-      throw new Error('Login failed');
+    } catch (error) {
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        throw new Error(error.message || 'Invalid email or password');
+      }
+      throw new Error('Login failed. Please check your credentials and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -68,8 +72,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await authService.signup(credentials);
       setUser(user);
       localStorage.setItem('user', JSON.stringify(user));
-    } catch {
-      throw new Error('Signup failed');
+    } catch (error) {
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        throw new Error(error.message || 'Failed to create account');
+      }
+      throw new Error('Signup failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  age?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +17,7 @@ export interface SignupCredentials {
   email: string;
   password: string;
   confirmPassword: string;
+  age?: number;
 }
 
 export interface AuthContextType {
