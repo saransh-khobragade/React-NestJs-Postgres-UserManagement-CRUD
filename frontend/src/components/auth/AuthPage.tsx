@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
-export const AuthPage: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+interface AuthPageProps {
+  isLogin: boolean;
+  setIsLogin: (value: boolean) => void;
+}
+
+export const AuthPage: React.FC<AuthPageProps> = ({ isLogin, setIsLogin }) => {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-background p-4 relative'>

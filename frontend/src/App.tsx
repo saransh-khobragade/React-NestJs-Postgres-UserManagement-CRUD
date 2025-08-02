@@ -1,5 +1,6 @@
 import './App.css';
 import type { ReactElement } from 'react';
+import { useState } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/components/auth/AuthPage';
@@ -8,6 +9,7 @@ import { Toaster } from '@/components/ui/sonner';
 
 function AppContent(): ReactElement {
   const { user, isLoading } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
 
   if (isLoading) {
     return (
@@ -17,7 +19,7 @@ function AppContent(): ReactElement {
     );
   }
 
-  return user !== null ? <Dashboard /> : <AuthPage />;
+  return user !== null ? <Dashboard /> : <AuthPage isLogin={isLogin} setIsLogin={setIsLogin} />;
 }
 
 function App(): ReactElement {
