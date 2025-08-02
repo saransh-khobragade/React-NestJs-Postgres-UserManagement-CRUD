@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
   Card,
   CardContent,
@@ -120,6 +121,7 @@ export const Dashboard: React.FC = () => {
             <span className='text-sm text-muted-foreground'>
               Welcome, {user?.name}
             </span>
+            <ThemeToggle />
             <Button variant='outline' onClick={() => {
               logout();
               toast.success('Logged out successfully');

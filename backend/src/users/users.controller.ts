@@ -33,6 +33,7 @@ export class UsersController {
           properties: {
             id: { type: 'number' },
             name: { type: 'string' },
+            age: { type: 'number' },
             email: { type: 'string' },
             created_at: { type: 'string' },
             updated_at: { type: 'string' },
@@ -42,17 +43,11 @@ export class UsersController {
     },
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<{ success: boolean; data: User }> {
     const user = await this.usersService.create(createUserDto);
     return {
       success: true,
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      },
+      data: user,
     };
   }
 
@@ -72,6 +67,7 @@ export class UsersController {
             properties: {
               id: { type: 'number' },
               name: { type: 'string' },
+              age: { type: 'number' },
               email: { type: 'string' },
               created_at: { type: 'string' },
               updated_at: { type: 'string' },
@@ -81,17 +77,11 @@ export class UsersController {
       },
     },
   })
-  async findAll() {
+  async findAll(): Promise<{ success: boolean; data: User[] }> {
     const users = await this.usersService.findAll();
     return {
       success: true,
-      data: users.map(user => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      })),
+      data: users,
     };
   }
 
@@ -110,6 +100,7 @@ export class UsersController {
           properties: {
             id: { type: 'number' },
             name: { type: 'string' },
+            age: { type: 'number' },
             email: { type: 'string' },
             created_at: { type: 'string' },
             updated_at: { type: 'string' },
@@ -119,17 +110,11 @@ export class UsersController {
     },
   })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean; data: User }> {
     const user = await this.usersService.findOne(id);
     return {
       success: true,
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      },
+      data: user,
     };
   }
 
@@ -148,6 +133,7 @@ export class UsersController {
           properties: {
             id: { type: 'number' },
             name: { type: 'string' },
+            age: { type: 'number' },
             email: { type: 'string' },
             created_at: { type: 'string' },
             updated_at: { type: 'string' },
@@ -160,17 +146,11 @@ export class UsersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<{ success: boolean; data: User }> {
     const user = await this.usersService.update(id, updateUserDto);
     return {
       success: true,
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        created_at: user.createdAt,
-        updated_at: user.updatedAt,
-      },
+      data: user,
     };
   }
 

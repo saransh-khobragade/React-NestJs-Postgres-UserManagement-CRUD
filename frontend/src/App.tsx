@@ -1,5 +1,6 @@
 import './App.css';
 import type { ReactElement } from 'react';
+import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/components/auth/AuthPage';
 import { Dashboard } from '@/components/dashboard/Dashboard';
@@ -21,12 +22,19 @@ function AppContent(): ReactElement {
 
 function App(): ReactElement {
   return (
-    <AuthProvider>
-      <div className='min-h-screen bg-background'>
-        <AppContent />
-        <Toaster />
-      </div>
-    </AuthProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      disableTransitionOnChange
+    >
+      <AuthProvider>
+        <div className='min-h-screen bg-background'>
+          <AppContent />
+          <Toaster />
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

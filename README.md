@@ -1,84 +1,255 @@
-# React-Node-LoginApp
+# React-NestJS-UserManagement-CRUD
 
 A full-stack authentication and user management application built with React, NestJS, and PostgreSQL.
 
-## 🚀 Quick Start
+## 🚀 Features
 
-### Prerequisites
+- **🔐 Complete Authentication System** - Login, signup, and session management
+- **👥 User Management Dashboard** - Full CRUD operations with analytics
+- **🎨 Modern UI** - Built with shadcn/ui components and Tailwind CSS
+- **📊 Real-time Statistics** - User analytics and insights
+- **🔒 Secure API** - JWT authentication with validation
+- **🗄️ PostgreSQL Database** - Robust data persistence
+- **🐳 Docker Support** - Easy development and deployment
+- **📚 API Documentation** - Interactive Swagger docs
+- **⚡ TypeScript** - Full type safety across the stack
+
+## 📋 Prerequisites
+
 - Docker and Docker Compose
 - Node.js (v18 or higher)
 - Yarn package manager
 
-### 1. Start the Backend (Database + API)
+## 🚀 Quick Start
+
+### 1. Start Backend Services
 
 ```bash
 cd backend
+
+# Start all services (recommended for first time)
 ./scripts/start.sh
+
+# Or start specific services
+./scripts/start.sh --backend-only     # Only NestJS API
+./scripts/start.sh --postgres-only    # Only database
+./scripts/start.sh --pgadmin-only     # Only pgAdmin
 ```
 
-This starts:
-- PostgreSQL database on port 5432
-- NestJS API on port 8080
-- pgAdmin (database management) on port 5050
-
-### 2. Start the Frontend
+### 2. Start Frontend
 
 ```bash
 cd frontend
 yarn dev
 ```
-
-The React app will run on `http://localhost:5173`
 
 ### 3. Access the Application
 
 - **Frontend**: http://localhost:5173
 - **API**: http://localhost:8080
+- **API Docs**: http://localhost:8080/api
 - **pgAdmin**: http://localhost:5050 (admin@admin.com / admin)
 
-## 🧪 Test the App
+## 🔧 Development Commands
 
-1. **Sign Up**: Create a new account with name, email, password, and optional age
-2. **Login**: Use your credentials to access the dashboard
-3. **User Management**: View, create, edit, and delete users
-4. **API Testing**: Use the provided test scripts in `backend/scripts/`
+### Backend Management
 
-## 🔧 Troubleshooting
-
-### Backend Issues
 ```bash
 cd backend
-# View logs
-docker-compose logs
 
-# Restart services
-docker-compose restart
+# Start services with different options
+./scripts/start.sh                    # Start all services
+./scripts/start.sh --backend-only     # Start only backend
+./scripts/start.sh --postgres-only    # Start only database
+./scripts/start.sh --pgadmin-only     # Start only pgAdmin
 
-# Rebuild containers
-./scripts/start.sh --rebuild
+# Rebuild services
+./scripts/start.sh --rebuild-backend  # Rebuild backend only
+./scripts/start.sh --rebuild-postgres # Rebuild database only
+./scripts/start.sh --rebuild-pgadmin  # Rebuild pgAdmin only
+./scripts/start.sh --rebuild          # Rebuild everything
+
+# Test API endpoints
+./scripts/test-api.sh
+
+# Clean up Docker resources
+./scripts/cleanup.sh
+
+# Show help
+./scripts/start.sh --help
 ```
 
-### Frontend Issues
+### Frontend Development
+
 ```bash
 cd frontend
-# Clear dependencies and reinstall
-rm -rf node_modules yarn.lock
-yarn install
-yarn dev
+
+yarn dev          # Start development server
+yarn build        # Build for production
+yarn lint         # Run ESLint
+yarn lint:fix     # Fix linting issues
+yarn format       # Format code with Prettier
+yarn type-check   # TypeScript type checking
 ```
 
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
 React-Node-LoginApp/
-├── backend/          # NestJS API with PostgreSQL
-├── frontend/         # React app with TypeScript
-└── README.md
+├── backend/                 # NestJS API server
+│   ├── src/
+│   │   ├── auth/           # Authentication module
+│   │   ├── users/          # User management module
+│   │   └── main.ts         # Application entry point
+│   ├── scripts/            # Development scripts
+│   ├── docker-compose.yml  # Docker services
+│   └── README.md           # Backend documentation
+├── frontend/               # React application
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── contexts/       # React contexts
+│   │   ├── services/       # API services
+│   │   └── types/          # TypeScript types
+│   ├── public/             # Static assets
+│   └── README.md           # Frontend documentation
+└── README.md               # This file
 ```
 
-## 🛠️ Development
+## 🔐 Authentication Flow
 
-- **Backend**: NestJS with TypeORM, PostgreSQL, Docker
-- **Frontend**: React with TypeScript, Vite, Tailwind CSS
-- **Authentication**: Custom auth system with age support
-- **Database**: PostgreSQL with pgAdmin for management 
+1. **Sign Up**: Create a new account with email and password
+2. **Login**: Authenticate with credentials
+3. **Dashboard**: Access user management features
+4. **Session Management**: Automatic session persistence
+5. **Logout**: Secure session termination
+
+## 👥 User Management Features
+
+- **📊 Dashboard Analytics**: Total users, new users, recent activity
+- **➕ Create Users**: Add new users with validation
+- **📖 Read Users**: View all users in responsive table
+- **✏️ Update Users**: Edit user information
+- **🗑️ Delete Users**: Remove users with confirmation
+- **🔍 Search & Filter**: Find users quickly
+- **📱 Responsive Design**: Works on all devices
+
+## 🐳 Docker Services
+
+The application uses Docker Compose with the following services:
+
+- **backend**: NestJS API server (port 8080)
+- **postgres**: PostgreSQL database (port 5432)
+- **pgadmin**: Database management interface (port 5050)
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Copy the example environment file and configure:
+
+```bash
+cd backend
+cp env.example .env
+```
+
+Key configuration options:
+- Database connection settings
+- JWT secret and expiration
+- Application port and environment
+
+### Database Setup
+
+The database is automatically initialized on first startup:
+- Database: `test_db`
+- Username: `postgres`
+- Password: `password`
+
+## 🧪 Testing
+
+### API Testing
+
+```bash
+cd backend
+./scripts/test-api.sh
+```
+
+### Manual Testing
+
+```bash
+# Test user creation
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "age": 30,
+    "isActive": true
+  }'
+
+# Test user retrieval
+curl http://localhost:8080/users
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+**Backend not starting:**
+```bash
+# Check if ports are available
+lsof -i :8080
+lsof -i :5432
+lsof -i :5050
+
+# Rebuild backend
+./scripts/start.sh --rebuild-backend
+```
+
+**Database connection issues:**
+```bash
+# Check database status
+docker-compose ps
+
+# Restart database
+./scripts/start.sh --rebuild-postgres
+```
+
+**Frontend not connecting to API:**
+- Ensure backend is running on port 8080
+- Check CORS configuration in backend
+- Verify API service configuration in frontend
+
+### Useful Commands
+
+```bash
+# View service logs
+docker-compose logs -f [service_name]
+
+# Check service status
+docker-compose ps
+
+# Access database
+docker exec -it postgres psql -U postgres -d test_db
+
+# Clean up everything
+./scripts/cleanup.sh
+```
+
+## 📚 Documentation
+
+- **[Backend README](./backend/README.md)** - Detailed backend documentation
+- **[Frontend README](./frontend/README.md)** - Frontend development guide
+- **[API Documentation](http://localhost:8080/api)** - Interactive Swagger docs
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License. 

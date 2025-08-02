@@ -6,13 +6,13 @@ interface ApiUser {
   name: string;
   email: string;
   age?: number;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ApiResponse<T> {
   success: boolean;
-  data: T;
+  data?: T;
   message?: string;
   source?: string;
 }
@@ -23,15 +23,27 @@ const convertApiUser = (apiUser: ApiUser): User => ({
   name: apiUser.name,
   email: apiUser.email,
   ...(apiUser.age !== undefined && { age: apiUser.age }),
-  createdAt: apiUser.created_at,
-  updatedAt: apiUser.updated_at,
+  createdAt: apiUser.createdAt,
+  updatedAt: apiUser.updatedAt,
 });
 
 const getUsers = async (): Promise<User[]> => {
   try {
     const response = await api.get<ApiResponse<ApiUser[]>>('/api/users');
+    
+    if (!response.success) {
+      throw new Error(response.message ?? 'Failed to fetch users');
+    }
+    
+    if (!response.data) {
+      throw new Error('Invalid response from server');
+    }
+    
     return response.data.map(convertApiUser);
-  } catch {
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to fetch users');
   }
 };
@@ -39,8 +51,20 @@ const getUsers = async (): Promise<User[]> => {
 const createUser = async (userData: CreateUserData): Promise<User> => {
   try {
     const response = await api.post<ApiResponse<ApiUser>>('/api/users', userData);
+    
+    if (!response.success) {
+      throw new Error(response.message ?? 'Failed to create user');
+    }
+    
+    if (!response.data) {
+      throw new Error('Invalid response from server');
+    }
+    
     return convertApiUser(response.data);
-  } catch {
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to create user');
   }
 };
@@ -51,16 +75,35 @@ const updateUser = async (
 ): Promise<User> => {
   try {
     const response = await api.put<ApiResponse<ApiUser>>(`/api/users/${id}`, userData);
+    
+    if (!response.success) {
+      throw new Error(response.message ?? 'Failed to update user');
+    }
+    
+    if (!response.data) {
+      throw new Error('Invalid response from server');
+    }
+    
     return convertApiUser(response.data);
-  } catch {
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to update user');
   }
 };
 
 const deleteUser = async (id: string): Promise<void> => {
   try {
-    await api.delete<ApiResponse<ApiUser>>(`/api/users/${id}`);
-  } catch {
+    const response = await api.delete<ApiResponse<ApiUser>>(`/api/users/${id}`);
+    
+    if (!response.success) {
+      throw new Error(response.message ?? 'Failed to delete user');
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to delete user');
   }
 };

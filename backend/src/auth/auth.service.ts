@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
@@ -17,8 +17,11 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
+    console.log('Login attempt:', { email: loginDto.email, userFound: !!user, passwordMatch: user ? user.password === loginDto.password : false });
+
     if (!user || user.password !== loginDto.password) {
-      return { success: false, message: 'Invalid credentials' };
+      console.log('Throwing UnauthorizedException');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return {
@@ -40,7 +43,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      return { success: false, message: 'User already exists' };
+      throw new ConflictException('User already exists');
     }
 
     const user = this.usersRepository.create({

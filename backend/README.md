@@ -13,6 +13,7 @@ A complete CRUD API application built with NestJS, PostgreSQL, and Docker Compos
 - **User Management**: Complete CRUD operations for users
 - **pgAdmin**: Web-based database management interface
 - **Automatic Database Setup**: PostgreSQL initialization handled automatically
+- **Flexible Service Management**: Start individual services or rebuild specific containers
 
 ## 📋 Prerequisites
 
@@ -22,7 +23,7 @@ A complete CRUD API application built with NestJS, PostgreSQL, and Docker Compos
 
 ## ⚡ Quick Start
 
-### Start Everything (Recommended)
+### Start All Services (Recommended)
 
 ```bash
 # Start all services (PostgreSQL, NestJS App, pgAdmin)
@@ -30,10 +31,23 @@ A complete CRUD API application built with NestJS, PostgreSQL, and Docker Compos
 ```
 
 This will start:
-- **NestJS API** at http://localhost:3000
-- **Swagger Docs** at http://localhost:3000/api
+- **NestJS API** at http://localhost:8080
+- **Swagger Docs** at http://localhost:8080/api
 - **pgAdmin** at http://localhost:5050
 - **PostgreSQL** on port 5432
+
+### Start Specific Services
+
+```bash
+# Start only the NestJS backend
+./scripts/start.sh --backend-only
+
+# Start only PostgreSQL database
+./scripts/start.sh --postgres-only
+
+# Start only pgAdmin interface
+./scripts/start.sh --pgadmin-only
+```
 
 ### Manual Start
 
@@ -44,6 +58,42 @@ docker-compose up -d
 # Start the application
 yarn start:dev
 ```
+
+## 🔧 Service Management
+
+### Start Script Options
+
+The `./scripts/start.sh` script provides flexible service management:
+
+```bash
+# Start all services
+./scripts/start.sh
+
+# Start specific services only
+./scripts/start.sh --backend-only     # Only NestJS API
+./scripts/start.sh --postgres-only    # Only PostgreSQL
+./scripts/start.sh --pgadmin-only     # Only pgAdmin
+
+# Rebuild specific services
+./scripts/start.sh --rebuild-backend  # Rebuild NestJS app only
+./scripts/start.sh --rebuild-postgres # Rebuild PostgreSQL only
+./scripts/start.sh --rebuild-pgadmin  # Rebuild pgAdmin only
+
+# Rebuild everything
+./scripts/start.sh --rebuild
+
+# Show help
+./scripts/start.sh --help
+```
+
+### Use Cases for Service-Specific Starts
+
+- **`--backend-only`**: When you only need to test the API without database overhead
+- **`--postgres-only`**: When you need to work with the database directly
+- **`--pgadmin-only`**: When you need database management interface
+- **`--rebuild-backend`**: After making code changes to the NestJS application
+- **`--rebuild-postgres`**: When you need to reset the database
+- **`--rebuild-pgadmin`**: When pgAdmin configuration needs updating
 
 ## 🗄️ Database Management
 
@@ -67,8 +117,6 @@ docker exec -it postgres psql -U postgres -d test_db -c "\dt"
 # View users
 docker exec -it postgres psql -U postgres -d test_db -c "SELECT * FROM users;"
 
-
-
 # Check database status
 docker exec -it postgres psql -U postgres -c "\l"
 ```
@@ -88,8 +136,6 @@ No manual database initialization is needed!
 - `GET /users/:id` - Get user by ID
 - `PATCH /users/:id` - Update user
 - `DELETE /users/:id` - Delete user
-
-
 
 ### Health & Documentation
 - `GET /` - Root endpoint
@@ -116,7 +162,22 @@ curl -X POST http://localhost:8080/users \
     "isActive": true
   }'
 
+# Get all users
+curl http://localhost:8080/users
 
+# Get user by ID
+curl http://localhost:8080/users/1
+
+# Update user
+curl -X PATCH http://localhost:8080/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Jane",
+    "isActive": false
+  }'
+
+# Delete user
+curl -X DELETE http://localhost:8080/users/1
 ```
 
 ## 🛠️ Development
@@ -160,8 +221,15 @@ JWT_EXPIRES_IN=1d
 # Start all services
 docker-compose up -d
 
+# Start specific services
+docker-compose up -d backend
+docker-compose up -d postgres
+docker-compose up -d pgadmin
+
 # View logs
 docker-compose logs -f
+docker-compose logs -f backend
+docker-compose logs -f postgres
 
 # Stop all services
 docker-compose down
@@ -178,10 +246,15 @@ docker-compose down -v
 
 ## 🔧 Scripts
 
-### Start Script with Rebuild Options
+### Start Script with All Options
 ```bash
 # Normal start
 ./scripts/start.sh
+
+# Start specific services
+./scripts/start.sh --backend-only     # Start only NestJS app
+./scripts/start.sh --postgres-only    # Start only PostgreSQL
+./scripts/start.sh --pgadmin-only     # Start only pgAdmin
 
 # Rebuild specific containers
 ./scripts/start.sh --rebuild-backend   # Rebuild NestJS app only
@@ -211,8 +284,6 @@ docker-compose down -v
 - `createdAt` (TIMESTAMP)
 - `updatedAt` (TIMESTAMP)
 
-
-
 ## 📁 Project Structure
 
 ```
@@ -220,6 +291,13 @@ src/
 ├── main.ts                 # Application entry point
 ├── app.module.ts          # Root module
 ├── app.controller.ts      # Main controller
+├── auth/                  # Authentication module
+│   ├── auth.controller.ts # Auth endpoints
+│   ├── auth.service.ts    # Auth business logic
+│   ├── auth.module.ts     # Auth module definition
+│   └── dto/               # Auth DTOs
+│       ├── login.dto.ts
+│       └── signup.dto.ts
 ├── users/                 # Users module
 │   ├── user.entity.ts     # User database entity
 │   ├── users.controller.ts # Users API endpoints
@@ -228,7 +306,10 @@ src/
 │   └── dto/               # Data Transfer Objects
 │       ├── create-user.dto.ts
 │       └── update-user.dto.ts
-
+└── scripts/               # Development scripts
+    ├── start.sh           # Service management script
+    ├── test-api.sh        # API testing script
+    └── cleanup.sh         # Cleanup script
 ```
 
 ## 📚 Dependencies
@@ -258,29 +339,60 @@ src/
 - Ensure PostgreSQL container is running: `docker-compose ps`
 - Check database exists: `docker exec postgres psql -U postgres -c "\l"`
 - Restart backend: `docker-compose restart backend`
+- Rebuild database: `./scripts/start.sh --rebuild-postgres`
 
 **pgAdmin not showing servers:**
 - Check servers.json configuration
 - Restart pgAdmin: `docker-compose restart pgadmin`
+- Rebuild pgAdmin: `./scripts/start.sh --rebuild-pgadmin`
 - Verify PostgreSQL is accessible from pgAdmin container
 
 **Port conflicts:**
 - Check if ports 8080, 5432, or 5050 are in use
 - Stop conflicting services or change ports in docker-compose.yml
 
+**Service-specific issues:**
+- Use service-specific start options to isolate problems
+- Check individual service logs: `docker-compose logs -f [service_name]`
+- Rebuild specific services as needed
+
 ### Useful Commands
 ```bash
 # Check container status
 docker-compose ps
 
-# View logs
-docker-compose logs -f [service_name]
+# View logs for specific service
+docker-compose logs -f backend
+docker-compose logs -f postgres
+docker-compose logs -f pgadmin
 
 # Access PostgreSQL
 docker exec -it postgres psql -U postgres -d test_db
 
 # Rebuild specific service
 ./scripts/start.sh --rebuild-backend
+./scripts/start.sh --rebuild-postgres
+./scripts/start.sh --rebuild-pgadmin
+
+# Start only what you need
+./scripts/start.sh --backend-only
+./scripts/start.sh --postgres-only
+```
+
+### Service Isolation Testing
+
+When debugging issues, you can isolate services:
+
+```bash
+# Test only the database
+./scripts/start.sh --postgres-only
+docker exec -it postgres psql -U postgres -d test_db
+
+# Test only the backend (will fail without database)
+./scripts/start.sh --backend-only
+
+# Test only pgAdmin
+./scripts/start.sh --pgadmin-only
 ```
 
 ## 🤝 Contributing

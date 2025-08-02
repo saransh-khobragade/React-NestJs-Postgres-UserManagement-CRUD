@@ -12,7 +12,7 @@ interface ApiUser {
 
 interface ApiResponse<T> {
   success: boolean;
-  data: T;
+  data?: T;
   message?: string;
 }
 
@@ -35,6 +35,10 @@ export const authService = {
         throw new Error(response.message ?? 'Invalid email or password');
       }
       
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+      
       return convertApiUser(response.data);
     } catch (error) {
       if (error instanceof Error) {
@@ -55,6 +59,10 @@ export const authService = {
       
       if (!response.success) {
         throw new Error(response.message ?? 'Failed to create account');
+      }
+      
+      if (!response.data) {
+        throw new Error('Invalid response from server');
       }
       
       return convertApiUser(response.data);
