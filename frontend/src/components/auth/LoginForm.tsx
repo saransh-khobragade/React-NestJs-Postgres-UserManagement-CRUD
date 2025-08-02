@@ -67,7 +67,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
             <Input
-              value={'test@test.com'}
+              // value={'test@test.com'}
               id='email'
               type='email'
               placeholder='Enter your email'
@@ -81,7 +81,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
           <div className='space-y-2'>
             <Label htmlFor='password'>Password</Label>
             <Input
-              value={'temp123'}
+              // value={'temp123'}
               id='password'
               type='password'
               placeholder='Enter your password'

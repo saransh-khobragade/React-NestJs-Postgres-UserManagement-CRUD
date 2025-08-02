@@ -81,7 +81,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='name'>Full Name</Label>
             <Input
-              value={'Temp Name'}
+              // value={'Temp Name'}
               id='name'
               type='text'
               placeholder='Enter your full name'
@@ -95,7 +95,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
             <Input
-              value={'test@test.com'}
+              // value={'test@test.com'}
               id='email'
               type='email'
               placeholder='Enter your email'
@@ -109,7 +109,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='age'>Age (Optional)</Label>
             <Input
-              value={20}
+              // value={20}
               id='age'
               type='number'
               placeholder='Enter your age'
@@ -123,7 +123,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='password'>Password</Label>
             <Input
-              value={'temp123'}
+              // value={'temp123'}
               id='password'
               type='password'
               placeholder='Enter your password'
@@ -137,7 +137,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           <div className='space-y-2'>
             <Label htmlFor='confirmPassword'>Confirm Password</Label>
             <Input
-              value={'temp123'} 
+              // value={'temp123'} 
               id='confirmPassword'
               type='password'
               placeholder='Confirm your password'
