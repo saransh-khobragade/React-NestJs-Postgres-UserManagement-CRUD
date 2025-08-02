@@ -35,17 +35,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing user session on mount
+  // Set loading to false on mount (no persistence)
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser !== null) {
-      try {
-        const parsedUser = JSON.parse(savedUser) as User;
-        setUser(parsedUser);
-      } catch {
-        localStorage.removeItem('user');
-      }
-    }
     setIsLoading(false);
   }, []);
 
@@ -54,7 +45,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await authService.login(credentials);
       setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
     } catch (error) {
       // Provide more specific error messages
       if (error instanceof Error) {
@@ -71,7 +61,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const user = await authService.signup(credentials);
       setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
     } catch (error) {
       // Provide more specific error messages
       if (error instanceof Error) {
@@ -85,7 +74,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = (): void => {
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   const value: AuthContextType = {
