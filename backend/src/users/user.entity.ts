@@ -14,7 +14,7 @@ export class User {
   id!: number;
 
   @ApiProperty({ description: 'The full name of the user' })
-  @Column({ length: 100 })
+  @Column({ length: 255 })
   name!: string;
 
   @ApiProperty({ description: 'The email address of the user' })
@@ -30,14 +30,14 @@ export class User {
   age!: number;
 
   @ApiProperty({ description: 'Whether the user is active' })
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive!: boolean;
 
   @ApiProperty({ description: 'The date when the user was created' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ApiProperty({ description: 'The date when the user was last updated' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }

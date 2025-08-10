@@ -18,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.DATABASE_PASSWORD || 'password',
       database: process.env.DATABASE_NAME || 'test_db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV === 'development',
+      synchronize: false,
       logging: process.env.NODE_ENV === 'development',
       // Connection retry settings - fail fast after 10 seconds
       retryAttempts: 3,

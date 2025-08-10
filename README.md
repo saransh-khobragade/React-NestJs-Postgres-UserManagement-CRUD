@@ -8,19 +8,18 @@ A full-stack authentication and user management application built with React, Ne
 
 ```bash
 cd backend
-# just want to start backend local
-yarn start
+# Start Database/Postgres(Docker)
 ./scripts/start.sh --postgres-only 
+# Start Database/Postgres UI(Docker)
 ./scripts/start.sh --pgadmin-only 
 
+# Start Backend local
+yarn start
+# Start Backend(Docker)
+./scripts/start.sh --backend-only 
 
 # Start all services (recommended for first time)
 ./scripts/start.sh
-
-# Or start specific services
-./scripts/start.sh --backend-only     # Only NestJS API
-./scripts/start.sh --postgres-only    # Only database
-./scripts/start.sh --pgadmin-only     # Only pgAdmin
 ```
 
 ### 2. Start Frontend
