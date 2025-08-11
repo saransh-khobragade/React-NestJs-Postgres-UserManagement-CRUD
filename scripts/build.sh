@@ -2,14 +2,17 @@
 
 # Docker build script for the User Management application
 
-# Available services
-AVAILABLE_SERVICES=(
-  "frontend" "backend" "postgres" "pgadmin"
-  # Observability stack
-  "prometheus" "grafana" "loki" "promtail" "tempo" "pyroscope" "otel-collector" "postgres-exporter"
-  # Group alias (expands later)
-  "monitoring"
-)
+# Available services (dynamic, based on presence of monitoring/)
+CORE_SERVICES=("frontend" "backend" "postgres" "pgadmin")
+MONITORING_SERVICES=("prometheus" "grafana" "loki" "promtail" "tempo" "pyroscope" "otel-collector" "postgres-exporter")
+
+if [ -d "monitoring" ]; then
+  AVAILABLE_SERVICES=("${CORE_SERVICES[@]}" "${MONITORING_SERVICES[@]}" "monitoring")
+  MONITORING_PRESENT=true
+else
+  AVAILABLE_SERVICES=("${CORE_SERVICES[@]}")
+  MONITORING_PRESENT=false
+fi
 
 # Ensure lockfiles are up-to-date before docker builds (avoids --frozen-lockfile errors)
 preinstall_if_needed() {
@@ -37,7 +40,9 @@ show_usage() {
     echo "  backend    - NestJS API server"
     echo "  postgres   - PostgreSQL database"
     echo "  pgadmin    - PgAdmin database management"
-    echo "  monitoring - Essential monitoring (Prometheus + Grafana only)"
+    if [ "$MONITORING_PRESENT" = true ]; then
+      echo "  monitoring - Monitoring stack (Prometheus, Grafana, Loki, Promtail, Tempo, Pyroscope, OTel Collector, Postgres Exporter)"
+    fi
     echo "  all        - Build all services"
     echo ""
     echo "Options:"
@@ -73,12 +78,17 @@ show_interactive_menu() {
     echo "2) backend" 
     echo "3) postgres"
     echo "4) pgadmin"
-    echo "5) monitoring (Prometheus, Grafana, Loki, Promtail, Tempo, Pyroscope, OTel Collector, Postgres Exporter)"
-    echo "6) postgres-exporter"
-    echo "7) all"
+    if [ "$MONITORING_PRESENT" = true ]; then
+      echo "5) monitoring (full stack)"
+      echo "6) postgres-exporter"
+      echo "7) all"
+    else
+      echo "5) all"
+      echo "(monitoring/ folder missing; monitoring services are unavailable)"
+    fi
     echo ""
     
-    read -p "Choice (1-6): " choice
+    read -p "Choice: " choice
     
     case $choice in
         1)
@@ -94,13 +104,27 @@ show_interactive_menu() {
             SERVICES_TO_BUILD=("pgadmin")
             ;;
         5)
-            SERVICES_TO_BUILD=("monitoring")
+            if [ "$MONITORING_PRESENT" = true ]; then
+              SERVICES_TO_BUILD=("monitoring")
+            else
+              SERVICES_TO_BUILD=("all")
+            fi
             ;;
         6)
-            SERVICES_TO_BUILD=("postgres-exporter")
+            if [ "$MONITORING_PRESENT" = true ]; then
+              SERVICES_TO_BUILD=("postgres-exporter")
+            else
+              echo "Invalid option. Building all services."
+              SERVICES_TO_BUILD=("all")
+            fi
             ;;
         7)
-            SERVICES_TO_BUILD=("all")
+            if [ "$MONITORING_PRESENT" = true ]; then
+              SERVICES_TO_BUILD=("all")
+            else
+              echo "Invalid option. Building all services."
+              SERVICES_TO_BUILD=("all")
+            fi
             ;;
         *)
             echo "Invalid option. Building all services."
@@ -153,17 +177,22 @@ fi
 
 # Convert "all" to actual services
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
-    SERVICES_TO_BUILD=(
-      frontend backend postgres pgadmin
-      prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter
-    )
+    SERVICES_TO_BUILD=("${CORE_SERVICES[@]}")
+    if [ "$MONITORING_PRESENT" = true ]; then
+      SERVICES_TO_BUILD+=("${MONITORING_SERVICES[@]}")
+    fi
 fi
 
 # Expand monitoring to individual services
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " monitoring " ]]; then
-    # Remove monitoring token and add full observability stack
-    SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
-    SERVICES_TO_BUILD+=(prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter)
+    if [ "$MONITORING_PRESENT" = true ]; then
+      # Remove monitoring token and add full observability stack
+      SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
+      SERVICES_TO_BUILD+=("${MONITORING_SERVICES[@]}")
+    else
+      echo "Monitoring services are unavailable (monitoring/ folder not found). Skipping."
+      SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
+    fi
 fi
 
 echo "Building services: ${SERVICES_TO_BUILD[*]}"
@@ -203,10 +232,12 @@ echo "Services started successfully!"
 echo ""
 echo "Frontend:   http://localhost:3000"
 echo "Backend API: http://localhost:8080"
-echo "Grafana:    http://localhost:3001"
-echo "Prometheus: http://localhost:9090"
-echo "Pyroscope:  http://localhost:4040"
 echo "PgAdmin:    http://localhost:5050"
+if [ "$MONITORING_PRESENT" = true ]; then
+  echo "Grafana:    http://localhost:3001"
+  echo "Prometheus: http://localhost:9090"
+  echo "Pyroscope:  http://localhost:4040"
+fi
 echo ""
 
 # Show logs if requested

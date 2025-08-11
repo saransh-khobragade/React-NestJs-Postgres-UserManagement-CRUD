@@ -37,7 +37,16 @@ if [[ -z "$SERVICE" || -z "$MODE" || "$SERVICE" == "-h" || "$SERVICE" == "--help
   exit 2
 fi
 
-valid_services=(backend frontend postgres pgadmin prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter)
+core_services=(backend frontend postgres pgadmin)
+monitoring_services=(prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter)
+
+if [ -d "monitoring" ]; then
+  valid_services=("${core_services[@]}" "${monitoring_services[@]}")
+  monitoring_present=true
+else
+  valid_services=("${core_services[@]}")
+  monitoring_present=false
+fi
 
 is_valid_service() {
   local s="$1"
