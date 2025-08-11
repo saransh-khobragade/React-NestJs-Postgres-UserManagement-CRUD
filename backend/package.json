@@ -48,7 +48,8 @@
     "@opentelemetry/resources": "^1.9.0",
     "@opentelemetry/semantic-conventions": "^1.23.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.53.0",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.53.0"
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.53.0",
+    "@pyroscope/nodejs": "^0.4.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
