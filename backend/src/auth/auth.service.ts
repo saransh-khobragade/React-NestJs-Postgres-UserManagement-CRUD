@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private metricsService: MetricsService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -21,8 +23,11 @@ export class AuthService {
 
     if (!user || user.password !== loginDto.password) {
       console.log('Throwing UnauthorizedException');
+      this.metricsService.incrementUserLogins(false);
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    this.metricsService.incrementUserLogins(true);
 
     return {
       success: true,
@@ -54,6 +59,9 @@ export class AuthService {
     });
 
     const savedUser = await this.usersRepository.save(user);
+    
+    // Track user registration metric
+    this.metricsService.incrementUserRegistrations();
 
     return {
       success: true,

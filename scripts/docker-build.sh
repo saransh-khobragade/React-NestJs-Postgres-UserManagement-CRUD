@@ -3,18 +3,36 @@
 # Docker build script for the User Management application
 
 # Available services
-AVAILABLE_SERVICES=("frontend" "backend" "postgres" "pgadmin")
+AVAILABLE_SERVICES=("frontend" "backend" "postgres" "pgadmin" "monitoring")
+
+# Ensure lockfiles are up-to-date before docker builds (avoids --frozen-lockfile errors)
+preinstall_if_needed() {
+    local dir=$1
+    if [ ! -d "$dir" ]; then
+        return 0
+    fi
+    if [ -f "$dir/package.json" ]; then
+        # If yarn.lock missing or package.json newer than yarn.lock, run yarn install
+        if [ ! -f "$dir/yarn.lock" ] || [ "$dir/package.json" -nt "$dir/yarn.lock" ]; then
+            echo "📦 Running yarn install in $dir (updating lockfile)..."
+            (cd "$dir" && yarn install --no-progress) || {
+                echo "❌ yarn install failed in $dir"; exit 1;
+            }
+        fi
+    fi
+}
 
 # Function to display usage
 show_usage() {
     echo "Usage: $0 [SERVICE1] [SERVICE2] ... [OPTIONS]"
     echo ""
     echo "Services:"
-    echo "  frontend  - React frontend with Nginx"
-    echo "  backend   - NestJS API server"
-    echo "  postgres  - PostgreSQL database"
-    echo "  pgadmin   - PgAdmin database management"
-    echo "  all       - Build all services"
+    echo "  frontend   - React frontend with Nginx"
+    echo "  backend    - NestJS API server"
+    echo "  postgres   - PostgreSQL database"
+    echo "  pgadmin    - PgAdmin database management"
+    echo "  monitoring - Essential monitoring (Prometheus + Grafana only)"
+    echo "  all        - Build all services"
     echo ""
     echo "Options:"
     echo "  --no-cache    Build without using cache"
@@ -49,10 +67,11 @@ show_interactive_menu() {
     echo "2) backend" 
     echo "3) postgres"
     echo "4) pgadmin"
-    echo "5) all"
+    echo "5) monitoring"
+    echo "6) all"
     echo ""
     
-    read -p "Choice (1-5): " choice
+    read -p "Choice (1-6): " choice
     
     case $choice in
         1)
@@ -68,6 +87,9 @@ show_interactive_menu() {
             SERVICES_TO_BUILD=("pgadmin")
             ;;
         5)
+            SERVICES_TO_BUILD=("monitoring")
+            ;;
+        6)
             SERVICES_TO_BUILD=("all")
             ;;
         *)
@@ -121,12 +143,29 @@ fi
 
 # Convert "all" to actual services
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
-    SERVICES_TO_BUILD=("${AVAILABLE_SERVICES[@]}")
+    SERVICES_TO_BUILD=("frontend" "backend" "postgres" "pgadmin" "monitoring")
+fi
+
+# Expand monitoring to individual services
+if [[ " ${SERVICES_TO_BUILD[*]} " =~ " monitoring " ]]; then
+    # Remove monitoring and add essential monitoring services
+    SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
+    SERVICES_TO_BUILD+=("prometheus" "grafana")
 fi
 
 echo "Building services: ${SERVICES_TO_BUILD[*]}"
 
 # Build and start services
+# Pre-install to avoid docker --frozen-lockfile failures
+if [[ " ${SERVICES_TO_BUILD[*]} " =~ " backend " ]] || [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
+    preinstall_if_needed "backend"
+    echo "🔧 Building backend locally (to update dist/ for mounted volume)..."
+    (cd backend && yarn build) || { echo "❌ Backend build failed"; exit 1; }
+fi
+if [[ " ${SERVICES_TO_BUILD[*]} " =~ " frontend " ]] || [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
+    preinstall_if_needed "frontend"
+fi
+
 BUILD_CMD="docker-compose up --build -d"
 
 # Add build options

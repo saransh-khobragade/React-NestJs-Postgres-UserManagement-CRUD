@@ -16,7 +16,7 @@
       "path": "/api/users",
       "body": {
         "name": "Test User TIMESTAMP",
-        "email": "test@example.com", 
+        "email": "testTIMESTAMP@example.com", 
         "password": "password123"
       },
       "expectCode": 201,
