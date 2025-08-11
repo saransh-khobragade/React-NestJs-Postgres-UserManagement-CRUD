@@ -2,8 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { startOtel, shutdownOtel } from './tracing/otel';
 
 async function bootstrap() {
+  await startOtel();
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS
@@ -38,3 +40,9 @@ async function bootstrap() {
 }
 
 bootstrap();
+process.on('SIGTERM', () => {
+  shutdownOtel().finally(() => process.exit(0));
+});
+process.on('SIGINT', () => {
+  shutdownOtel().finally(() => process.exit(0));
+});

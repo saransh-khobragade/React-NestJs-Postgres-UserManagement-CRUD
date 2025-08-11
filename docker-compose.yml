@@ -28,13 +28,14 @@ services:
       - DATABASE_NAME=test_db
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=password
+      - OTEL_SERVICE_NAME=nestjs-backend
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev
     depends_on:
       - postgres
     networks:
       - network
-    volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
 
   frontend:
     build:
@@ -103,6 +104,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-pyroscope-datasource
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
@@ -111,12 +113,80 @@ services:
       - network
     depends_on:
       - prometheus
+      - tempo
+      - loki
+      - pyroscope
+
+  # Logs (Loki) + Log shipper (Promtail)
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    command: ["-config.file=/etc/loki/config.yaml"]
+    ports:
+      - "3100:3100"
+    networks:
+      - network
+    volumes:
+      - ./monitoring/loki/config.yaml:/etc/loki/config.yaml:ro
+
+  promtail:
+    image: grafana/promtail:2.9.8
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/promtail/config.yml:/etc/promtail/config.yml:ro
+    command: ["-config.file=/etc/promtail/config.yml"]
+    networks:
+      - network
+    depends_on:
+      - loki
+
+  # Traces (Tempo)
+  tempo:
+    image: grafana/tempo:2.8.0
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./monitoring/tempo/tempo.yaml:/etc/tempo.yaml:ro
+    ports:
+      - "3200:3200"  # Tempo HTTP query (Grafana uses container DNS; external exposure optional)
+    networks:
+      - network
+
+  # Profiles (Pyroscope)
+  pyroscope:
+    image: grafana/pyroscope:1.14.0
+    container_name: pyroscope
+    ports:
+      - "4040:4040"
+    networks:
+      - network
+    volumes:
+      - pyroscope_data:/var/lib/pyroscope
+
+  # OpenTelemetry Collector Contrib
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./monitoring/otelcol/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "8889:8889"  # Prometheus scrape endpoint
+    networks:
+      - network
+    depends_on:
+      - tempo
+      - loki
 
 volumes:
   postgres_data:
   pgadmin_data:
   prometheus_data:
   grafana_data:
+  pyroscope_data:
 
 networks:
   network:
