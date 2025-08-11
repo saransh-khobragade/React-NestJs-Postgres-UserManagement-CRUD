@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { trace } from '@opentelemetry/api';
 
 @Controller()
 export class AppController {
@@ -9,9 +10,15 @@ export class AppController {
 
   @Get('health')
   getHealth(): { status: string; timestamp: string } {
-    return {
+    const tracer = trace.getTracer('app-controller');
+    const span = tracer.startSpan('health_check');
+    try {
+      return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-    };
+      };
+    } finally {
+      span.end();
+    }
   }
 }

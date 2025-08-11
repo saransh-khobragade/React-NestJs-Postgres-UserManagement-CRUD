@@ -2,10 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { startOtel, shutdownOtel } from './tracing/otel';
+import { shutdownOtel } from './tracing/otel';
 
 async function bootstrap() {
-  await startOtel();
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS

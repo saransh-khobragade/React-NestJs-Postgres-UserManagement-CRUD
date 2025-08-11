@@ -12,7 +12,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node -r ./dist/tracing/register dist/main",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -44,9 +44,11 @@
     "@opentelemetry/sdk-node": "^0.53.0",
     "@opentelemetry/auto-instrumentations-node": "^0.53.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.53.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.53.0",
     "@opentelemetry/resources": "^1.9.0",
     "@opentelemetry/semantic-conventions": "^1.23.0",
-    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.53.0"
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.53.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.53.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

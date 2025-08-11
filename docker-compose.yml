@@ -29,8 +29,8 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=password
       - OTEL_SERVICE_NAME=nestjs-backend
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317
-      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http
       - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev
     depends_on:
       - postgres
@@ -174,7 +174,8 @@ services:
     volumes:
       - ./monitoring/otelcol/config.yaml:/etc/otelcol/config.yaml:ro
     ports:
-      - "8889:8889"  # Prometheus scrape endpoint
+      - "8889:8889"  # Prometheus scrape endpoint (exported metrics)
+      - "8888:8888"  # Collector self-telemetry metrics
     networks:
       - network
     depends_on:

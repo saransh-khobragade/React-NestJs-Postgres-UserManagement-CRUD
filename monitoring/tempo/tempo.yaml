@@ -7,8 +7,10 @@ distributor:
   receivers:
     otlp:
       protocols:
-        http: {}
-        grpc: {}
+        http:
+          endpoint: 0.0.0.0:4318
+        grpc:
+          endpoint: 0.0.0.0:4317
 
 ingester:
   lifecycler:
@@ -39,4 +41,16 @@ storage:
     local:
       path: /tmp/tempo/blocks
 
-# metrics_generator disabled for compatibility
+metrics_generator:
+  ring:
+    kvstore:
+      store: memberlist
+  storage:
+    path: /tmp/tempo/generator
+  processor:
+    service_graphs: {}
+    span_metrics:
+      dimensions: [service.name, span.name, status.code]
+
+overrides:
+  metrics_generator_processors: [service_graphs, span_metrics]

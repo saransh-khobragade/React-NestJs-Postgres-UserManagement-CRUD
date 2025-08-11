@@ -15,8 +15,8 @@
       "method": "POST",
       "path": "/api/users",
       "body": {
-        "name": "Test User TIMESTAMP",
-        "email": "testTIMESTAMP@example.com", 
+        "name": "Test User",
+        "email": "test@example.com", 
         "password": "password123"
       },
       "expectCode": 201,

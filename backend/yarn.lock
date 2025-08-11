@@ -1022,7 +1022,7 @@
     "@opentelemetry/resources" "1.26.0"
     "@opentelemetry/sdk-metrics" "1.26.0"
 
-"@opentelemetry/exporter-metrics-otlp-http@0.53.0":
+"@opentelemetry/exporter-metrics-otlp-http@0.53.0", "@opentelemetry/exporter-metrics-otlp-http@^0.53.0":
   version "0.53.0"
   resolved "https://packages.atlassian.com/api/npm/npm-remote/@opentelemetry/exporter-metrics-otlp-http/-/exporter-metrics-otlp-http-0.53.0.tgz#27ce0bf1f22d0cc4afae4e7a313e292b6c438300"
   integrity sha512-nvZtOk23pZOrTW10Za2WPd9pk4tWDvL6ALlHRFfInpcTjtOgCrv+fQDxpzosa5PeXvYeFFUO5aYCTnwiCX4Dzg==
@@ -1057,7 +1057,7 @@
     "@opentelemetry/resources" "1.28.0"
     "@opentelemetry/sdk-trace-base" "1.28.0"
 
-"@opentelemetry/exporter-trace-otlp-http@0.53.0":
+"@opentelemetry/exporter-trace-otlp-http@0.53.0", "@opentelemetry/exporter-trace-otlp-http@^0.53.0":
   version "0.53.0"
   resolved "https://packages.atlassian.com/api/npm/npm-remote/@opentelemetry/exporter-trace-otlp-http/-/exporter-trace-otlp-http-0.53.0.tgz#48e46c4573a35d31c14e6bc44635923e32970b9a"
   integrity sha512-m7F5ZTq+V9mKGWYpX8EnZ7NjoqAU7VemQ1E2HAG+W/u0wpY1x0OmbxAXfGKFHCspdJk8UKlwPGrpcB8nay3P8A==

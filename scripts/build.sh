@@ -3,7 +3,13 @@
 # Docker build script for the User Management application
 
 # Available services
-AVAILABLE_SERVICES=("frontend" "backend" "postgres" "pgadmin" "monitoring")
+AVAILABLE_SERVICES=(
+  "frontend" "backend" "postgres" "pgadmin"
+  # Observability stack
+  "prometheus" "grafana" "loki" "promtail" "tempo" "pyroscope" "otel-collector"
+  # Group alias (expands later)
+  "monitoring"
+)
 
 # Ensure lockfiles are up-to-date before docker builds (avoids --frozen-lockfile errors)
 preinstall_if_needed() {
@@ -67,7 +73,7 @@ show_interactive_menu() {
     echo "2) backend" 
     echo "3) postgres"
     echo "4) pgadmin"
-    echo "5) monitoring"
+    echo "5) monitoring (Prometheus, Grafana, Loki, Promtail, Tempo, Pyroscope, OTel Collector)"
     echo "6) all"
     echo ""
     
@@ -143,14 +149,17 @@ fi
 
 # Convert "all" to actual services
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
-    SERVICES_TO_BUILD=("frontend" "backend" "postgres" "pgadmin" "monitoring")
+    SERVICES_TO_BUILD=(
+      frontend backend postgres pgadmin
+      prometheus grafana loki promtail tempo pyroscope otel-collector
+    )
 fi
 
 # Expand monitoring to individual services
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " monitoring " ]]; then
-    # Remove monitoring and add essential monitoring services
+    # Remove monitoring token and add full observability stack
     SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
-    SERVICES_TO_BUILD+=("prometheus" "grafana")
+    SERVICES_TO_BUILD+=(prometheus grafana loki promtail tempo pyroscope otel-collector)
 fi
 
 echo "Building services: ${SERVICES_TO_BUILD[*]}"
@@ -188,9 +197,12 @@ fi
 
 echo "Services started successfully!"
 echo ""
-echo "Frontend: http://localhost:3000"
+echo "Frontend:   http://localhost:3000"
 echo "Backend API: http://localhost:8080"
-echo "PgAdmin: http://localhost:5050"
+echo "Grafana:    http://localhost:3001"
+echo "Prometheus: http://localhost:9090"
+echo "Pyroscope:  http://localhost:4040"
+echo "PgAdmin:    http://localhost:5050"
 echo ""
 
 # Show logs if requested
