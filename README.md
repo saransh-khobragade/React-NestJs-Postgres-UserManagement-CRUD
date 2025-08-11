@@ -58,7 +58,15 @@ pgAdmin is included for DB administration at http://localhost:5050 (default: adm
 ```bash
 cd frontend
 yarn install
-yarn dev   # http://localhost:5173
+yarn dev   # http://localhost:3000
+```
+
+## 🧑‍💻 Local frontend dev
+
+```bash
+cd backend
+yarn install
+yarn start   # http://localhost:8080
 ```
 
 ## 🔧 Useful commands
