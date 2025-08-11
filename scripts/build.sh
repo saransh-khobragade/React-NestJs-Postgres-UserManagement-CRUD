@@ -6,7 +6,7 @@
 AVAILABLE_SERVICES=(
   "frontend" "backend" "postgres" "pgadmin"
   # Observability stack
-  "prometheus" "grafana" "loki" "promtail" "tempo" "pyroscope" "otel-collector"
+  "prometheus" "grafana" "loki" "promtail" "tempo" "pyroscope" "otel-collector" "postgres-exporter"
   # Group alias (expands later)
   "monitoring"
 )
@@ -73,8 +73,9 @@ show_interactive_menu() {
     echo "2) backend" 
     echo "3) postgres"
     echo "4) pgadmin"
-    echo "5) monitoring (Prometheus, Grafana, Loki, Promtail, Tempo, Pyroscope, OTel Collector)"
-    echo "6) all"
+    echo "5) monitoring (Prometheus, Grafana, Loki, Promtail, Tempo, Pyroscope, OTel Collector, Postgres Exporter)"
+    echo "6) postgres-exporter"
+    echo "7) all"
     echo ""
     
     read -p "Choice (1-6): " choice
@@ -96,6 +97,9 @@ show_interactive_menu() {
             SERVICES_TO_BUILD=("monitoring")
             ;;
         6)
+            SERVICES_TO_BUILD=("postgres-exporter")
+            ;;
+        7)
             SERVICES_TO_BUILD=("all")
             ;;
         *)
@@ -151,7 +155,7 @@ fi
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " all " ]]; then
     SERVICES_TO_BUILD=(
       frontend backend postgres pgadmin
-      prometheus grafana loki promtail tempo pyroscope otel-collector
+      prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter
     )
 fi
 
@@ -159,7 +163,7 @@ fi
 if [[ " ${SERVICES_TO_BUILD[*]} " =~ " monitoring " ]]; then
     # Remove monitoring token and add full observability stack
     SERVICES_TO_BUILD=(${SERVICES_TO_BUILD[@]/monitoring})
-    SERVICES_TO_BUILD+=(prometheus grafana loki promtail tempo pyroscope otel-collector)
+    SERVICES_TO_BUILD+=(prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter)
 fi
 
 echo "Building services: ${SERVICES_TO_BUILD[*]}"

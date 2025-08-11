@@ -37,7 +37,7 @@ if [[ -z "$SERVICE" || -z "$MODE" || "$SERVICE" == "-h" || "$SERVICE" == "--help
   exit 2
 fi
 
-valid_services=(backend frontend postgres pgadmin prometheus grafana loki promtail tempo pyroscope otel-collector)
+valid_services=(backend frontend postgres pgadmin prometheus grafana loki promtail tempo pyroscope otel-collector postgres-exporter)
 
 is_valid_service() {
   local s="$1"

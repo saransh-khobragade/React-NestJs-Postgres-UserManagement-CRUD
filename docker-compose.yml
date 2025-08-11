@@ -116,6 +116,7 @@ services:
       - tempo
       - loki
       - pyroscope
+      - otel-collector
 
   # Logs (Loki) + Log shipper (Promtail)
   loki:
@@ -165,6 +166,22 @@ services:
       - network
     volumes:
       - pyroscope_data:/var/lib/pyroscope
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: postgres-exporter
+    environment:
+      - DATA_SOURCE_URI=postgres:5432/postgres?sslmode=disable
+      - DATA_SOURCE_USER=postgres
+      - DATA_SOURCE_PASS=password
+      - PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
+      - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres-exporter/queries.yaml
+    volumes:
+      - ./monitoring/postgres/queries.yaml:/etc/postgres-exporter/queries.yaml:ro
+    depends_on:
+      - postgres
+    networks:
+      - network
 
   # OpenTelemetry Collector Contrib
   otel-collector:
